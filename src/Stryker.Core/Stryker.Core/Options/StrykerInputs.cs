@@ -48,6 +48,7 @@ namespace Stryker.Core.Options
         OpenReportInput OpenReportInput { get; init; }
         OpenReportEnabledInput OpenReportEnabledInput { get; init; }
         BreakOnInitialTestFailureInput BreakOnInitialTestFailureInput { get; init; }
+        UnityVersionInput UnityVersionInput { get; init; }
 
         StrykerOptions ValidateAll();
     }
@@ -104,6 +105,7 @@ namespace Stryker.Core.Options
         public OpenReportInput OpenReportInput { get; init; } = new();
         public OpenReportEnabledInput OpenReportEnabledInput { get; init; } = new();
         public BreakOnInitialTestFailureInput BreakOnInitialTestFailureInput { get; init; } = new();
+        public UnityVersionInput UnityVersionInput { get; init; } = new();
 
         public StrykerOptions ValidateAll()
         {
@@ -116,6 +118,7 @@ namespace Stryker.Core.Options
             var sinceEnabled = SinceInput.Validate(WithBaselineInput.SuppliedInput);
             var sinceTarget = SinceTargetInput.Validate(sinceEnabled);
             var projectVersion = ProjectVersionInput.Validate(reporters, withBaseline);
+            var unityVersion = UnityVersionInput.Validate();
 
             _strykerOptionsCache ??= new StrykerOptions()
             {
@@ -148,6 +151,7 @@ namespace Stryker.Core.Options
                 Mutate = MutateInput.Validate(),
                 LanguageVersion = LanguageVersionInput.Validate(),
                 OptimizationMode = CoverageAnalysisInput.Validate() | DisableBailInput.Validate() | DisableMixMutantsInput.Validate(),
+                UnityVersion = unityVersion,
                 TestProjects = TestProjectsInput.Validate(),
                 TestCaseFilter = TestCaseFilterInput.Validate(),
                 DashboardUrl = DashboardUrlInput.Validate(),

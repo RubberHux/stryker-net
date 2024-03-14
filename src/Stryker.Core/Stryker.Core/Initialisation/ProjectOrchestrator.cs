@@ -58,6 +58,7 @@ namespace Stryker.Core.Initialisation
             _initializationProcess.BuildProjects(options, projectInfos);
 
             // create a test runner
+            // TODO: check if we're running a Unity project, and create a UnityTestRunner instead if so
             _runner = runner ?? new VsTestRunnerPool(options, fileSystem: _fileResolver.FileSystem);
 
             InitializeDashboardProjectInformation(options, projectInfos.First());

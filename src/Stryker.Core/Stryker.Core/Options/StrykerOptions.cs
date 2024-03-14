@@ -195,6 +195,8 @@ namespace Stryker.Core.Options
         /// </summary>
         public OptimizationModes OptimizationMode { get; init; }
 
+        public string UnityVersion { get; init; }
+
         /// <summary>
         /// This name is used in the dashboard report
         /// Is settable because this version can be detected by using DotNet.ReproducibleBuilds and thus can be overridden by stryker internally
