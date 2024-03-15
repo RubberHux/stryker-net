@@ -74,8 +74,10 @@ namespace Stryker.Core.Initialisation
             // Analyze source project
             // Analyze all projects in the solution with buildalyzer
             var solutionAnalyzerResults = AnalyzeSolution(options);
-            var solutionTestProjects = solutionAnalyzerResults.Where(p => p.IsTestProject()).ToList();
-            var projectsUnderTestAnalyzerResult = solutionAnalyzerResults.Where(p => !p.IsTestProject()).ToList();
+            var solutionTestProjects = solutionAnalyzerResults.Where(p => p.IsTestProject()
+                || UnityTestProjectFinder.IsUnityTestProject(p)).ToList();
+            var projectsUnderTestAnalyzerResult = solutionAnalyzerResults.Where(p => !p.IsTestProject()
+                && !UnityTestProjectFinder.IsUnityTestProject(p)).ToList();
             _logger.LogInformation("Found {0} source projects", projectsUnderTestAnalyzerResult.Count);
             _logger.LogInformation("Found {0} test projects", solutionTestProjects.Count);
 
