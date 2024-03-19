@@ -12,6 +12,7 @@ using Stryker.Core.Options;
 using Stryker.Core.ProjectComponents.SourceProjects;
 using Stryker.Core.Reporters;
 using Stryker.Core.TestRunners;
+using Stryker.Core.TestRunners.UnityTest;
 using Stryker.Core.TestRunners.VsTest;
 
 namespace Stryker.Core.Initialisation
@@ -58,8 +59,8 @@ namespace Stryker.Core.Initialisation
             _initializationProcess.BuildProjects(options, projectInfos);
 
             // create a test runner
-            // TODO: check if we're running a Unity project, and create a UnityTestRunner instead if so
-            _runner = runner ?? new VsTestRunnerPool(options, fileSystem: _fileResolver.FileSystem);
+            if (options.UnityVersion != string.Empty) _runner = runner ?? new UnityTestRunner(options);
+            else _runner = runner ?? new VsTestRunnerPool(options, fileSystem: _fileResolver.FileSystem);
 
             InitializeDashboardProjectInformation(options, projectInfos.First());
             var inputs = _initializationProcess.GetMutationTestInputs(options, projectInfos, _runner);

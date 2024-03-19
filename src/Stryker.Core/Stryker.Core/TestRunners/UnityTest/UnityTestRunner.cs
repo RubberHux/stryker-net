@@ -14,14 +14,24 @@ using Stryker.Core.Mutants;
 using Stryker.Core.Options;
 using Stryker.Core.ProjectComponents.TestProjects;
 using Stryker.DataCollector;
+using System.Diagnostics;
 
-namespace Stryker.Core.TestRunners.UnityTest;
-public sealed class UnityTestRunner : ITestRunner
+namespace Stryker.Core.TestRunners.UnityTest
 {
-    public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project) => throw new NotImplementedException();
-    public bool DiscoverTests(string assembly) => throw new NotImplementedException();
-    public void Dispose() => throw new NotImplementedException();
-    public TestSet GetTests(IProjectAndTests project) => throw new NotImplementedException();
-    public TestRunResult InitialTest(IProjectAndTests project) => throw new NotImplementedException();
-    public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update) => throw new NotImplementedException();
+    public sealed class UnityTestRunner : ITestRunner
+    {
+        private Process _testRun;
+
+        public UnityTestRunner(StrykerOptions options, IFileSystem fileSystem = null)
+        {
+            _testRun = new Process();
+        }
+
+        public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project) => throw new NotImplementedException();
+        public bool DiscoverTests(string assembly) => throw new NotImplementedException();
+        public void Dispose() => throw new NotImplementedException();
+        public TestSet GetTests(IProjectAndTests project) => throw new NotImplementedException();
+        public TestRunResult InitialTest(IProjectAndTests project) => throw new NotImplementedException();
+        public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update) => throw new NotImplementedException();
+    }
 }
