@@ -15,6 +15,7 @@ using Stryker.Core.Options;
 using Stryker.Core.ProjectComponents.TestProjects;
 using Stryker.DataCollector;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Stryker.Core.TestRunners.UnityTest
 {
@@ -28,7 +29,19 @@ namespace Stryker.Core.TestRunners.UnityTest
         }
 
         public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project) => throw new NotImplementedException();
-        public bool DiscoverTests(string assembly) => throw new NotImplementedException();
+        public bool DiscoverTests(string assembly)
+        {
+            var testDLL = Assembly.LoadFile(assembly);
+            foreach (var type in testDLL.GetTypes())
+            {
+                foreach (var method in type.GetMethods())
+                {
+                    if (method.GetCustomAttributes(typeof(NUnit.Framework.TestAttribute), true).Length > 0) return true;
+                }
+            }
+
+            return false;
+        }
         public void Dispose() => throw new NotImplementedException();
         public TestSet GetTests(IProjectAndTests project) => throw new NotImplementedException();
         public TestRunResult InitialTest(IProjectAndTests project) => throw new NotImplementedException();
