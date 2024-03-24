@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
     <DebugType>Full</DebugType>
@@ -83,5 +83,14 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Stryker.DataCollector\Stryker.DataCollector\Stryker.DataCollector.csproj" />
     <ProjectReference Include="..\..\Stryker.RegexMutators\Stryker.RegexMutators\Stryker.RegexMutators.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityEditor.TestRunner">
+      <HintPath>..\..\..\..\UnityTestProject\Library\ScriptAssemblies\UnityEditor.TestRunner.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>..\..\..\..\UnityTestProject\Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

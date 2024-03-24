@@ -43,4 +43,15 @@
     <None Include="..\..\..\README.md" Pack="true" PackagePath="" Visible="false" />
     <None Include="..\..\..\docs\images\stryker-80x80.png" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityEditor.TestRunner">
+      <HintPath>..\..\..\..\UnityTestProject\Library\ScriptAssemblies\UnityEditor.TestRunner.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>..\..\..\..\UnityTestProject\Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

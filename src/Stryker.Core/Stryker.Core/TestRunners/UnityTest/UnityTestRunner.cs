@@ -49,10 +49,9 @@ namespace Stryker.Core.TestRunners.UnityTest
             {
                 foreach (var method in type.GetMethods())
                 {
-                    if (method.GetCustomAttributes(typeof(NUnit.Framework.TestAttribute), true).Length > 0)
+                    if (method.GetCustomAttributes(typeof(NUnit.Framework.TestAttribute), true).Length > 0
+                        || method.GetCustomAttributes(typeof(UnityEngine.TestTools.UnityTestAttribute), true).Length > 0)
                     {
-                        // NOTE: Currently, this does not take the Unity test tag into account, meaning it
-                        // can only identify NUnit test cases. This will need to be improved later
                         var testDesc = new TestDescription(Guid.NewGuid(), method.Name, GetTestFilePath(method));    
                         _testSet.RegisterTest(testDesc);
                     }
@@ -70,6 +69,11 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update) => throw new NotImplementedException();
 
+        /// <summary>
+        /// Finds the source file of a method appearing in an assembly
+        /// </summary>
+        /// <param name="testMethod"></param>
+        /// <returns>path to the source file where the method is defined</returns>
         private string GetTestFilePath(MethodInfo testMethod)
         {
             string result = string.Empty;
