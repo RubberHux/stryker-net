@@ -16,21 +16,32 @@ using Stryker.Core.ProjectComponents.TestProjects;
 using Stryker.DataCollector;
 using System.Diagnostics;
 using System.Reflection;
+using Stryker.Core.ProjectComponents.SourceProjects;
 
 namespace Stryker.Core.TestRunners.UnityTest
 {
     public sealed class UnityTestRunner : ITestRunner
     {
-        private Process _testRun;
         private TestSet _testSet;
+        private List<TestProject> _testProjects;
 
-        public UnityTestRunner(StrykerOptions options, IFileSystem fileSystem = null)
+        public UnityTestRunner(StrykerOptions options, IEnumerable<SourceProjectInfo> projects)
         {
-            _testRun = new Process();
             _testSet = new TestSet();
+            _testProjects = new List<TestProject>();
+
+            foreach (var info in projects)
+            {
+                var testProjects = info.TestProjectsInfo.TestProjects;
+                foreach (var testProject in testProjects)
+                {
+                    _testProjects.Add(testProject);
+                }
+            }
         }
 
         public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project) => throw new NotImplementedException();
+
         public bool DiscoverTests(string assembly)
         {
             var testDLL = Assembly.LoadFrom(assembly);
@@ -41,10 +52,8 @@ namespace Stryker.Core.TestRunners.UnityTest
                     if (method.GetCustomAttributes(typeof(NUnit.Framework.TestAttribute), true).Length > 0)
                     {
                         // NOTE: Currently, this does not take the Unity test tag into account, meaning it
-                        // can only identify NUnit test cases. Furthermore, no testFilePath can be provided
-                        // since it doesn't seem possible to get the source file of a type or method directly
-                        // from the assembly. This will need to be improved later
-                        var testDesc = new TestDescription(Guid.NewGuid(), method.Name, string.Empty);
+                        // can only identify NUnit test cases. This will need to be improved later
+                        var testDesc = new TestDescription(Guid.NewGuid(), method.Name, GetTestFilePath(method));    
                         _testSet.RegisterTest(testDesc);
                     }
                 }
@@ -52,9 +61,34 @@ namespace Stryker.Core.TestRunners.UnityTest
 
             return false;
         }
+
         public void Dispose() => throw new NotImplementedException();
+
         public TestSet GetTests(IProjectAndTests project) => _testSet;
+
         public TestRunResult InitialTest(IProjectAndTests project) => throw new NotImplementedException();
+
         public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update) => throw new NotImplementedException();
+
+        private string GetTestFilePath(MethodInfo testMethod)
+        {
+            string result = string.Empty;
+
+            foreach (var testProject in _testProjects)
+            {
+                var testFiles = testProject.TestFiles;
+                foreach (var testFile in testFiles)
+                {
+                    if (testFile.FilePath.Contains(testMethod.DeclaringType.Name))
+                    {
+                        result = testFile.FilePath;
+                        break;
+                    }
+                }
+                if (result != string.Empty) break;
+            }
+
+            return result;
+        }
     }
 }

@@ -59,7 +59,7 @@ namespace Stryker.Core.Initialisation
             _initializationProcess.BuildProjects(options, projectInfos);
 
             // create a test runner
-            if (options.UnityVersion != string.Empty) _runner = runner ?? new UnityTestRunner(options);
+            if (options.UnityVersion != string.Empty) _runner = runner ?? new UnityTestRunner(options, projectInfos);
             else _runner = runner ?? new VsTestRunnerPool(options, fileSystem: _fileResolver.FileSystem);
 
             InitializeDashboardProjectInformation(options, projectInfos.First());
