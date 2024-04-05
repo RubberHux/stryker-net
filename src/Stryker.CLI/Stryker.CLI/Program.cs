@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using Spectre.Console;
 using Stryker.Core;
 using Stryker.Core.Exceptions;

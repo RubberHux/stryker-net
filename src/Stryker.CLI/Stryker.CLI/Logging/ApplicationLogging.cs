@@ -1,5 +1,6 @@
 using System.IO;
 using LibGit2Sharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;

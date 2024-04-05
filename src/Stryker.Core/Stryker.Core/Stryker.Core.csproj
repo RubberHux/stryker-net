@@ -87,10 +87,12 @@
 
   <ItemGroup>
     <Reference Include="UnityEditor.TestRunner">
-      <HintPath>..\..\..\..\UnityTestProject\Library\ScriptAssemblies\UnityEditor.TestRunner.dll</HintPath>
+      <HintPath>..\..\assemblies\UnityEditor.TestRunner.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.TestRunner">
-      <HintPath>..\..\..\..\UnityTestProject\Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
+      <HintPath>..\..\assemblies\UnityEngine.TestRunner.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
 </Project>
