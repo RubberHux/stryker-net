@@ -22,6 +22,7 @@ namespace Stryker.Core.MutationTest
         private readonly IFileSystem _fileSystem;
         private readonly BaseMutantOrchestrator<SyntaxTree, SemanticModel> _orchestrator;
         private readonly IMutantFilter _mutantFilter;
+        private string injectionPath;
 
         /// <summary>
         /// This constructor is for tests
@@ -90,7 +91,7 @@ namespace Stryker.Core.MutationTest
 
             foreach (var testProject in info.TestProjectsInfo.AnalyzerResults)
             {
-                var injectionPath = TestProjectsInfo.GetInjectionFilePath(testProject, input.SourceProjectInfo.AnalyzerResult);
+                injectionPath = TestProjectsInfo.GetInjectionFilePath(testProject, input.SourceProjectInfo.AnalyzerResult);
                 if (!_fileSystem.Directory.Exists(testProject.GetAssemblyDirectoryPath()))
                 {
                     _fileSystem.Directory.CreateDirectory(testProject.GetAssemblyDirectoryPath());
@@ -127,6 +128,19 @@ namespace Stryker.Core.MutationTest
                     mutant.ResultStatus = MutantStatus.CompileError;
                     mutant.ResultStatusReason = "Mutant caused compile errors";
                 }
+            }
+
+            // if running on Unity project, replace assembly in ScriptAssemblies with mutant
+            if (_options.UnityVersion != string.Empty)
+            {
+                var mutantDirectory = Path.GetDirectoryName(injectionPath);
+                foreach (string path in Directory.GetFiles(mutantDirectory, "*.*", SearchOption.TopDirectoryOnly))
+                {
+                    var assemblyPath = Path.Combine("Library", "ScriptAssemblies", Path.GetFileName(path));
+                    File.Copy(path, assemblyPath, true);
+                }
+
+                _logger.LogDebug("Inserted mutated assembly into Unity");
             }
         }
 

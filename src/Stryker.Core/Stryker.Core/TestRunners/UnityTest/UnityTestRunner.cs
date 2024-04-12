@@ -25,6 +25,7 @@ namespace Stryker.Core.TestRunners.UnityTest
 {
     public sealed class UnityTestRunner : ITestRunner
     {
+        private StrykerOptions _options;
         private TestSet _testSet;
         private List<Guid> _testGuids;
         private List<TestProject> _testProjects;
@@ -33,6 +34,7 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public UnityTestRunner(StrykerOptions options, IEnumerable<SourceProjectInfo> projects)
         {
+            _options = options;
             _testSet = new TestSet();
             _testGuids = new List<Guid>();
             _testProjects = new List<TestProject>();
@@ -49,7 +51,12 @@ namespace Stryker.Core.TestRunners.UnityTest
             }
         }
 
-        public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project) => throw new NotImplementedException();
+        public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project)
+        {
+
+
+            throw new NotImplementedException();
+        }
 
         public bool DiscoverTests(string assembly)
         {
@@ -72,13 +79,33 @@ namespace Stryker.Core.TestRunners.UnityTest
             return false;
         }
 
-        public void Dispose() => throw new NotImplementedException();
+        public void Dispose()
+        {
+            //throw new NotImplementedException();
+        }
 
         public TestSet GetTests(IProjectAndTests project) => _testSet;
 
-        public TestRunResult InitialTest(IProjectAndTests project) => RunUnityTests("StrykerOutput/initial_test.xml");
+        public TestRunResult InitialTest(IProjectAndTests project) => RunUnityTests(Path.Combine(_options.OutputPath, "initial_test.xml"));
 
-        public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update) => throw new NotImplementedException();
+        public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update)
+        {
+            var mutant = mutants.Single();
+            Environment.SetEnvironmentVariable("ActiveMutation", mutant.Id.ToString());
+
+            var testResults = RunUnityTests(Path.Combine(_options.OutputPath, string.Concat(mutant.Id.ToString(), ".xml")),
+                additionalArgs:"-disable-assembly-updater");
+            update?.Invoke(mutants, testResults.FailingTests, testResults.ExecutedTests, testResults.TimedOutTests);
+
+            mutant.AssessingTests = testResults.ExecutedTests;
+            mutant.KillingTests = testResults.FailingTests;
+            if (mutant.KillingTests.Count > 0)
+                mutant.ResultStatus = MutantStatus.Killed;
+            else
+                mutant.ResultStatus = MutantStatus.Survived;
+
+            return testResults;
+        }
 
         /// <summary>
         /// Finds the source file of a method appearing in an assembly. This relies on the fact that the class name
@@ -107,34 +134,41 @@ namespace Stryker.Core.TestRunners.UnityTest
             return result;
         }
 
-        private TestRunResult RunUnityTests(string resultPath)
+        private TestRunResult RunUnityTests(string resultPath, string assemblyNames = null, string additionalArgs = null)
         {
-            _logger.LogInformation("Running Unity tests...");
+            _logger.LogDebug("Running Unity tests...");
 
             string unityEXE = string.Concat("\"", string.Concat(_unityPath, "\\Unity.exe\""));
             var processStartInfo = new ProcessStartInfo();
             processStartInfo.FileName = unityEXE;
             processStartInfo.Arguments = string.Concat("-runTests -batchmode -projectPath . -testPlatform EditMode -testResults ", resultPath);
-            
+
+            if (assemblyNames != null)
+                processStartInfo.Arguments = string.Concat(processStartInfo.Arguments, "-assemblyNames \"", assemblyNames, "\"");
+
+            if (additionalArgs != null) processStartInfo.Arguments.Concat(" " + additionalArgs);
+
+            processStartInfo.EnvironmentVariables["ActiveMutation"] = Environment.GetEnvironmentVariable("ActiveMutation");
+
             var testProcess = Process.Start(processStartInfo);
             testProcess.WaitForExit();
 
             int exitCode = testProcess.ExitCode;
-            _logger.LogInformation("Process finished with exit code {1}.", exitCode);
+            _logger.LogDebug("Process finished with exit code {1}.", exitCode);
 
             TestRunResult result;
 
-            if (exitCode == 0)
+            if (exitCode == 0 || exitCode == 2)
             {
                 var resultDoc = new XmlDocument();
-                resultDoc.Load("StrykerOutput/initial_test.xml");
+                resultDoc.Load(resultPath);
                 var testCaseNodes = resultDoc.GetElementsByTagName("test-case");
                 var root = resultDoc.SelectSingleNode("/test-run");
                 var timeSpan = new TimeSpan(0, 0, 0, 0, (int)(float.Parse(root.Attributes["duration"].Value) * 1000));
 
                 var executedTests = new List<Guid>();
                 var failingTests = new List<Guid>();
-
+                
                 foreach (XmlNode testCaseNode in testCaseNodes)
                 {
                     string name = testCaseNode.Attributes["name"].Value;

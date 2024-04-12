@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,9 @@ using Stryker.Core.Logging;
 using Stryker.Core.Mutants;
 using Stryker.Core.Options;
 using Stryker.Core.ProjectComponents;
+using Stryker.Core.ProjectComponents.TestProjects;
 using Stryker.Core.Reporters;
+using static Microsoft.FSharp.Core.ByRefKinds;
 
 namespace Stryker.Core.MutationTest
 {
@@ -102,7 +105,22 @@ namespace Stryker.Core.MutationTest
             return new StrykerRunResult(_options, _projectContents.GetMutationScore());
         }
 
-        public void Restore() => Input.TestProjectsInfo.RestoreOriginalAssembly(Input.SourceProjectInfo.AnalyzerResult);
+        public void Restore()
+        {
+            Input.TestProjectsInfo.RestoreOriginalAssembly(Input.SourceProjectInfo.AnalyzerResult);
+
+            // if running on Unity project, restore old assemblies
+            if (_options.UnityVersion != string.Empty)
+            {
+                var injectionPath = TestProjectsInfo.GetInjectionFilePath(Input.SourceProjectInfo.TestProjectsInfo.AnalyzerResults.First(), Input.SourceProjectInfo.AnalyzerResult);
+                var mutantDirectory = Path.GetDirectoryName(injectionPath);
+                foreach (string path in Directory.GetFiles(mutantDirectory, "*.*", SearchOption.TopDirectoryOnly))
+                {
+                    var assemblyPath = Path.Combine("Library", "ScriptAssemblies", Path.GetFileName(path));
+                    File.Copy(path, assemblyPath, true);
+                }
+            }
+        }
 
         private void TestMutants(IEnumerable<Mutant> mutantsToTest)
         {
