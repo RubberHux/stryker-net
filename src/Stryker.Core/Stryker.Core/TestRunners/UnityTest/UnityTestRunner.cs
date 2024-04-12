@@ -86,15 +86,14 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public TestSet GetTests(IProjectAndTests project) => _testSet;
 
-        public TestRunResult InitialTest(IProjectAndTests project) => RunUnityTests(Path.Combine(_options.OutputPath, "initial_test.xml"));
+        public TestRunResult InitialTest(IProjectAndTests project) => RunUnityTests(project, Path.Combine(_options.OutputPath, "initial_test.xml"));
 
         public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update)
         {
             var mutant = mutants.Single();
             Environment.SetEnvironmentVariable("ActiveMutation", mutant.Id.ToString());
 
-            var testResults = RunUnityTests(Path.Combine(_options.OutputPath, string.Concat(mutant.Id.ToString(), ".xml")),
-                additionalArgs:"-disable-assembly-updater");
+            var testResults = RunUnityTests(project, Path.Combine(_options.OutputPath, string.Concat(mutant.Id.ToString(), ".xml")), additionalArgs:"-disable-assembly-updater");
             update?.Invoke(mutants, testResults.FailingTests, testResults.ExecutedTests, testResults.TimedOutTests);
 
             mutant.AssessingTests = testResults.ExecutedTests;
@@ -134,7 +133,7 @@ namespace Stryker.Core.TestRunners.UnityTest
             return result;
         }
 
-        private TestRunResult RunUnityTests(string resultPath, string assemblyNames = null, string additionalArgs = null)
+        private TestRunResult RunUnityTests(IProjectAndTests project, string resultPath, string additionalArgs = null)
         {
             _logger.LogDebug("Running Unity tests...");
 
@@ -143,8 +142,12 @@ namespace Stryker.Core.TestRunners.UnityTest
             processStartInfo.FileName = unityEXE;
             processStartInfo.Arguments = string.Concat("-runTests -batchmode -projectPath . -testPlatform EditMode -testResults ", resultPath);
 
-            if (assemblyNames != null)
-                processStartInfo.Arguments = string.Concat(processStartInfo.Arguments, "-assemblyNames \"", assemblyNames, "\"");
+            var testAssemblies = project.GetTestAssemblies();
+            var assemblyNames = new List<string>();
+            foreach (var testAssembly in testAssemblies)
+                assemblyNames.Add(Path.GetFileNameWithoutExtension(testAssembly));
+            var assemblyNamesArgument = "\"" + string.Join(";", assemblyNames) + "\"";
+            processStartInfo.Arguments = string.Concat(processStartInfo.Arguments, " -assemblyNames ", assemblyNamesArgument);
 
             if (additionalArgs != null) processStartInfo.Arguments.Concat(" " + additionalArgs);
 
