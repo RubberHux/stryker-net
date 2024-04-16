@@ -52,6 +52,7 @@
     <PackageReference Include="Microsoft.TestPlatform.TranslationLayer" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" />
     <PackageReference Include="Mono.Cecil" />
+    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="NuGet.Frameworks" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="ResXResourceReader.NetStandard" />

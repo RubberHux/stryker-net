@@ -20,9 +20,12 @@ using Stryker.Core.ProjectComponents.SourceProjects;
 using System.IO;
 using System.Xml;
 using Stryker.Core.TestRunners.VsTest;
+using Newtonsoft.Json;
 
 namespace Stryker.Core.TestRunners.UnityTest
 {
+    public enum UnityTestPlatform { EditMode, PlayMode };
+
     public sealed class UnityTestRunner : ITestRunner
     {
         private StrykerOptions _options;
@@ -53,8 +56,6 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public IEnumerable<CoverageRunResult> CaptureCoverage(IProjectAndTests project)
         {
-
-
             throw new NotImplementedException();
         }
 
@@ -79,33 +80,6 @@ namespace Stryker.Core.TestRunners.UnityTest
             return false;
         }
 
-        public void Dispose()
-        {
-            //throw new NotImplementedException();
-        }
-
-        public TestSet GetTests(IProjectAndTests project) => _testSet;
-
-        public TestRunResult InitialTest(IProjectAndTests project) => RunUnityTests(project, Path.Combine(_options.OutputPath, "initial_test.xml"));
-
-        public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update)
-        {
-            var mutant = mutants.Single();
-            Environment.SetEnvironmentVariable("ActiveMutation", mutant.Id.ToString());
-
-            var testResults = RunUnityTests(project, Path.Combine(_options.OutputPath, string.Concat(mutant.Id.ToString(), ".xml")), additionalArgs:"-disable-assembly-updater");
-            update?.Invoke(mutants, testResults.FailingTests, testResults.ExecutedTests, testResults.TimedOutTests);
-
-            mutant.AssessingTests = testResults.ExecutedTests;
-            mutant.KillingTests = testResults.FailingTests;
-            if (mutant.KillingTests.Count > 0)
-                mutant.ResultStatus = MutantStatus.Killed;
-            else
-                mutant.ResultStatus = MutantStatus.Survived;
-
-            return testResults;
-        }
-
         /// <summary>
         /// Finds the source file of a method appearing in an assembly. This relies on the fact that the class name
         /// is the same as the name of the source file, otherwise it would not work.
@@ -127,29 +101,81 @@ namespace Stryker.Core.TestRunners.UnityTest
                         break;
                     }
                 }
-                if (result != string.Empty) break;
+                if (result != string.Empty)
+                    break;
             }
 
             return result;
         }
 
-        private TestRunResult RunUnityTests(IProjectAndTests project, string resultPath, string additionalArgs = null)
+        public void Dispose()
+        {
+            //throw new NotImplementedException();
+        }
+
+        public TestSet GetTests(IProjectAndTests project) => _testSet;
+
+        public TestRunResult InitialTest(IProjectAndTests project) => RunAllUnityTests(project, "initial_test");
+
+        public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update)
+        {
+            var mutant = mutants.Single();
+            Environment.SetEnvironmentVariable("ActiveMutation", mutant.Id.ToString());
+
+            var testResults = RunAllUnityTests(project, Path.Combine(_options.OutputPath, mutant.Id.ToString()), additionalArgs:"-disable-assembly-updater");
+            //update?.Invoke(mutants, testResults.FailingTests, testResults.ExecutedTests, testResults.TimedOutTests);
+
+            mutant.AssessingTests = testResults.ExecutedTests;
+            mutant.KillingTests = testResults.FailingTests;
+            if (mutant.KillingTests.Count > 0)
+                mutant.ResultStatus = MutantStatus.Killed;
+            else
+                mutant.ResultStatus = MutantStatus.Survived;
+
+            return testResults;
+        }
+
+        private TestRunResult RunAllUnityTests(IProjectAndTests project, string resultDir, string additionalArgs = null)
+        {
+            var editModeResults = RunUnityTests(project, Path.Combine(_options.OutputPath, resultDir + "\\editmode.xml"), UnityTestPlatform.EditMode, additionalArgs);
+            var playModeResults = RunUnityTests(project, Path.Combine(_options.OutputPath, resultDir + "\\playmode.xml"), UnityTestPlatform.PlayMode, additionalArgs);
+
+            return CombineTestResults(editModeResults, playModeResults);
+        }
+
+        private TestRunResult CombineTestResults(TestRunResult first, TestRunResult second)
+        {
+            return new TestRunResult(new List<VsTestDescription>(),
+                first.ExecutedTests.Merge(second.ExecutedTests),
+                first.FailingTests.Merge(second.FailingTests),
+                TestGuidsList.NoTest(),
+                null,
+                null,
+                new TimeSpan(0, 0, 0, 0, first.Duration.Milliseconds + second.Duration.Milliseconds));
+        }
+
+        private TestRunResult RunUnityTests(IProjectAndTests project, string resultPath, UnityTestPlatform testPlatform, string additionalArgs = null)
         {
             _logger.LogDebug("Running Unity tests...");
 
             string unityEXE = string.Concat("\"", string.Concat(_unityPath, "\\Unity.exe\""));
             var processStartInfo = new ProcessStartInfo();
             processStartInfo.FileName = unityEXE;
-            processStartInfo.Arguments = string.Concat("-runTests -batchmode -projectPath . -testPlatform EditMode -testResults ", resultPath);
+            string platform = Enum.GetName(testPlatform);
+            processStartInfo.Arguments = string.Concat("-runTests -batchmode -projectPath . -testPlatform ", platform, " -testResults ", resultPath);
 
-            var testAssemblies = project.GetTestAssemblies();
-            var assemblyNames = new List<string>();
-            foreach (var testAssembly in testAssemblies)
-                assemblyNames.Add(Path.GetFileNameWithoutExtension(testAssembly));
-            var assemblyNamesArgument = "\"" + string.Join(";", assemblyNames) + "\"";
-            processStartInfo.Arguments = string.Concat(processStartInfo.Arguments, " -assemblyNames ", assemblyNamesArgument);
+            var testAssemblies = GetTestAssemblies(project, testPlatform);
+            if (testAssemblies.Count() == 0)
+            {
+                _logger.LogDebug("No test suites for test platform " + platform + ". Returning empty results.");
+                return new TestRunResult(new List<VsTestDescription>(), TestGuidsList.NoTest(), TestGuidsList.NoTest(),
+                    TestGuidsList.NoTest(), null, null, TimeSpan.Zero);
+            }
 
-            if (additionalArgs != null) processStartInfo.Arguments.Concat(" " + additionalArgs);
+            var assemblyNamesArgument = "\"" + string.Join(";", testAssemblies) + "\"";
+            processStartInfo.Arguments += " -assemblyNames " + assemblyNamesArgument;
+
+            if (additionalArgs != null) processStartInfo.Arguments += " " + additionalArgs;
 
             processStartInfo.EnvironmentVariables["ActiveMutation"] = Environment.GetEnvironmentVariable("ActiveMutation");
 
@@ -202,6 +228,65 @@ namespace Stryker.Core.TestRunners.UnityTest
             }
 
             return testGuid;
+        }
+
+        private IEnumerable<string> GetTestAssemblies(IProjectAndTests project, UnityTestPlatform testPlatform)
+        {
+            var result = new List<string>();
+            var testAssemblies = project.GetTestAssemblies();
+            foreach (var testAssembly in testAssemblies)
+            {
+                if (GetAssemblyTestPlatform(testAssembly).Equals(testPlatform))
+                    result.Add(Path.GetFileNameWithoutExtension(testAssembly));
+            }
+            return result;
+        }
+
+        private UnityTestPlatform GetAssemblyTestPlatform(string testAssembly)
+        {
+            UnityTestPlatform result;
+
+            string assemblyReferencePath = GetAssemblyDefinitionPath(GetTestProject(testAssembly), testAssembly);
+            var reader = new StreamReader(assemblyReferencePath);
+            var json = reader.ReadToEnd();
+            var asmdef = JsonConvert.DeserializeObject<AssemblyDefinition>(json);
+
+            if (asmdef.IncludePlatforms.Contains("Editor"))
+                result = UnityTestPlatform.EditMode;
+            else
+                result = UnityTestPlatform.PlayMode;
+
+            return result;
+        }
+
+        private TestProject GetTestProject(string testAssembly)
+        {
+            string assemblyName = Path.GetFileNameWithoutExtension(testAssembly);
+            foreach (var testProject in _testProjects)
+            {
+                if (Path.GetFileNameWithoutExtension(testProject.AnalyzerResult.ProjectFilePath) == assemblyName)
+                    return testProject;
+            }
+
+            return null;
+        }
+
+        private string GetAssemblyDefinitionPath(TestProject testProject, string testAssembly)
+        {
+            string assemblyName = Path.GetFileNameWithoutExtension(testAssembly);
+            foreach (var item in testProject.AnalyzerResult.Items)
+            {
+                if (item.Key == "None")
+                {
+                    foreach (var value in item.Value)
+                    {
+                        if (value.ItemSpec.Contains(assemblyName) && Path.GetExtension(value.ItemSpec) == ".asmdef")
+                            return value.ItemSpec;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }
