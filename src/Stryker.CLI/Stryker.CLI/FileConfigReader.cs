@@ -70,6 +70,8 @@ namespace Stryker.CLI
 
             inputs.ReportFileNameInput.SuppliedInput = config.ReportFileName;
             inputs.BreakOnInitialTestFailureInput.SuppliedInput = config.BreakOnInitialTestFailure;
+
+            inputs.UnityVersionInput.SuppliedInput = config.UnityVersion;
         }
 
         private static FileBasedInput LoadConfig(string configFilePath)
