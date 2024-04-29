@@ -158,10 +158,6 @@ namespace Stryker.Core
 
         private void AnalyzeCoverage(StrykerOptions options)
         {
-            // this is just a simple addition to bypass coverage analysis for unity projects, until that's implemented
-            if (options.UnityVersion != string.Empty)
-                return;
-
             if (options.OptimizationMode.HasFlag(OptimizationModes.SkipUncoveredMutants) || options.OptimizationMode.HasFlag(OptimizationModes.CoverageBasedTest))
             {
                 _logger.LogInformation($"Capture mutant coverage using '{options.OptimizationMode}' mode.");

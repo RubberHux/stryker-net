@@ -25,6 +25,7 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <BaseOutputPath>bin\</BaseOutputPath>
   </PropertyGroup>
   
   <ItemGroup>

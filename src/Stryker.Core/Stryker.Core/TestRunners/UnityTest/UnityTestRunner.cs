@@ -61,18 +61,34 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public bool DiscoverTests(string assembly)
         {
-            var testDLL = Assembly.LoadFrom(assembly);
-            foreach (var type in testDLL.GetTypes())
+            // only register tests from the assembly if the corresponding test project was supplied as input
+            if (_options.TestProjects.Any(i => Path.GetFileNameWithoutExtension(assembly) == Path.GetFileNameWithoutExtension(i)))
             {
-                foreach (var method in type.GetMethods())
+                var testDLL = Assembly.LoadFrom(assembly);
+
+                // filter out types that result in errors, if there are any
+                IEnumerable<Type> types;
+                try
                 {
-                    if (method.GetCustomAttributes(typeof(NUnit.Framework.TestAttribute), true).Length > 0
-                        || method.GetCustomAttributes(typeof(UnityEngine.TestTools.UnityTestAttribute), true).Length > 0)
+                    types = testDLL.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    types = e.Types.Where(t => t != null);
+                }
+
+                foreach (var type in types)
+                {
+                    foreach (var method in type.GetMethods())
                     {
-                        var newTestGuid = Guid.NewGuid();
-                        var testDesc = new TestDescription(newTestGuid, method.Name, GetTestFilePath(method));    
-                        _testSet.RegisterTest(testDesc);
-                        _testGuids.Add(newTestGuid);
+                        if (method.GetCustomAttributes(typeof(NUnit.Framework.TestAttribute), true).Length > 0
+                            || method.GetCustomAttributes(typeof(UnityEngine.TestTools.UnityTestAttribute), true).Length > 0)
+                        {
+                            var newTestGuid = Guid.NewGuid();
+                            var testDesc = new TestDescription(newTestGuid, method.Name, GetTestFilePath(method));
+                            _testSet.RegisterTest(testDesc);
+                            _testGuids.Add(newTestGuid);
+                        }
                     }
                 }
             }
@@ -115,32 +131,36 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public TestSet GetTests(IProjectAndTests project) => _testSet;
 
-        public TestRunResult InitialTest(IProjectAndTests project) => RunAllUnityTests(project, "initial_test");
+        public TestRunResult InitialTest(IProjectAndTests project) => RunAllUnityTests(project, "initial_test", TimeSpan.MaxValue, additionalArgs: "-disable-assembly-updater");
 
         public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update)
         {
             var mutant = mutants.Single();
             Environment.SetEnvironmentVariable("ActiveMutation", mutant.Id.ToString());
 
-            var testResults = RunAllUnityTests(project, Path.Combine(_options.OutputPath, mutant.Id.ToString()), additionalArgs:"-disable-assembly-updater");
-            //update?.Invoke(mutants, testResults.FailingTests, testResults.ExecutedTests, testResults.TimedOutTests);
+            var testResults = RunAllUnityTests(project, Path.Combine(_options.OutputPath, mutant.Id.ToString()), TimeSpan.FromMilliseconds(timeoutCalc.DefaultTimeout), additionalArgs:"-disable-assembly-updater");
 
             mutant.AssessingTests = testResults.ExecutedTests;
             mutant.KillingTests = testResults.FailingTests;
             if (mutant.KillingTests.Count > 0)
                 mutant.ResultStatus = MutantStatus.Killed;
+            else if (testResults.TimedOutTests.Count > 0)
+                mutant.ResultStatus = MutantStatus.Timeout;
             else
                 mutant.ResultStatus = MutantStatus.Survived;
 
             return testResults;
         }
 
-        private TestRunResult RunAllUnityTests(IProjectAndTests project, string resultDir, string additionalArgs = null)
+        private TestRunResult RunAllUnityTests(IProjectAndTests project, string resultDir, TimeSpan timeout, string additionalArgs = null)
         {
-            var editModeResults = RunUnityTests(project, Path.Combine(_options.OutputPath, resultDir + "\\editmode.xml"), UnityTestPlatform.EditMode, additionalArgs);
-            var playModeResults = RunUnityTests(project, Path.Combine(_options.OutputPath, resultDir + "\\playmode.xml"), UnityTestPlatform.PlayMode, additionalArgs);
+            var resultPath = Path.Combine(_options.OutputPath, resultDir);
+
+            var editModeResults = RunUnityTests(project, "\"" + resultPath + "\\editmode.xml\"", UnityTestPlatform.EditMode, timeout, additionalArgs);
+            var playModeResults = RunUnityTests(project, "\"" + resultPath + "\\playmode.xml\"", UnityTestPlatform.PlayMode, timeout,additionalArgs);
 
             return CombineTestResults(editModeResults, playModeResults);
+            //return editModeResults;
         }
 
         private TestRunResult CombineTestResults(TestRunResult first, TestRunResult second)
@@ -148,13 +168,13 @@ namespace Stryker.Core.TestRunners.UnityTest
             return new TestRunResult(new List<VsTestDescription>(),
                 first.ExecutedTests.Merge(second.ExecutedTests),
                 first.FailingTests.Merge(second.FailingTests),
-                TestGuidsList.NoTest(),
+                first.TimedOutTests.Merge(second.TimedOutTests),
                 null,
                 null,
-                new TimeSpan(0, 0, 0, 0, first.Duration.Milliseconds + second.Duration.Milliseconds));
+                TimeSpan.FromMilliseconds(first.Duration.Milliseconds + second.Duration.Milliseconds));
         }
 
-        private TestRunResult RunUnityTests(IProjectAndTests project, string resultPath, UnityTestPlatform testPlatform, string additionalArgs = null)
+        private TestRunResult RunUnityTests(IProjectAndTests project, string resultPath, UnityTestPlatform testPlatform, TimeSpan timeout, string additionalArgs = null)
         {
             _logger.LogDebug("Running Unity tests...");
 
@@ -180,9 +200,12 @@ namespace Stryker.Core.TestRunners.UnityTest
             processStartInfo.EnvironmentVariables["ActiveMutation"] = Environment.GetEnvironmentVariable("ActiveMutation");
 
             var testProcess = Process.Start(processStartInfo);
-            testProcess.WaitForExit();
+            if (timeout == TimeSpan.MaxValue) testProcess.WaitForExit();
+            else testProcess.WaitForExit(timeout);
 
-            int exitCode = testProcess.ExitCode;
+            int exitCode = -1;
+            if (testProcess.HasExited) exitCode = testProcess.ExitCode;
+            else testProcess.Kill();
             _logger.LogDebug("Process finished with exit code {1}.", exitCode);
 
             TestRunResult result;
@@ -190,14 +213,14 @@ namespace Stryker.Core.TestRunners.UnityTest
             if (exitCode == 0 || exitCode == 2)
             {
                 var resultDoc = new XmlDocument();
-                resultDoc.Load(resultPath);
+                resultDoc.Load(resultPath.Substring(1, resultPath.Length - 2));
                 var testCaseNodes = resultDoc.GetElementsByTagName("test-case");
                 var root = resultDoc.SelectSingleNode("/test-run");
                 var timeSpan = new TimeSpan(0, 0, 0, 0, (int)(float.Parse(root.Attributes["duration"].Value) * 1000));
 
                 var executedTests = new List<Guid>();
                 var failingTests = new List<Guid>();
-                
+
                 foreach (XmlNode testCaseNode in testCaseNodes)
                 {
                     string name = testCaseNode.Attributes["name"].Value;
@@ -212,7 +235,11 @@ namespace Stryker.Core.TestRunners.UnityTest
                 result = new TestRunResult(new List<VsTestDescription>(), new TestGuidsList(executedTests), new TestGuidsList(failingTests),
                     TestGuidsList.NoTest(), null, null, timeSpan);
             }
-            else result = new TestRunResult(false);
+            else if (exitCode == -1)
+                return new TestRunResult(new List<VsTestDescription>(), TestGuidsList.NoTest(), TestGuidsList.NoTest(),
+                new TestGuidsList(_testGuids), null, null, TimeSpan.Zero);
+            else
+                result = new TestRunResult(false);
 
             return result;
         }
