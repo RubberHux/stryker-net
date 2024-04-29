@@ -195,7 +195,9 @@ namespace Stryker.Core.Options
         /// </summary>
         public OptimizationModes OptimizationMode { get; init; }
 
-        public string UnityVersion { get; init; }
+        public string UnityPath { get; init; }
+
+        public bool RecompileOnInitialTestInput { get; init; }
 
         /// <summary>
         /// This name is used in the dashboard report
@@ -282,6 +284,8 @@ namespace Stryker.Core.Options
             Thresholds = Thresholds,
             WithBaseline = WithBaseline,
             BreakOnInitialTestFailure = BreakOnInitialTestFailure,
+            UnityPath = UnityPath,
+            RecompileOnInitialTestInput = RecompileOnInitialTestInput,
         };
     }
 }

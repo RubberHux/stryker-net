@@ -91,8 +91,11 @@ namespace Stryker.CLI
         [JsonPropertyName("break-on-initial-test-failure")]
         public bool? BreakOnInitialTestFailure { get; init; }
 
-        [JsonPropertyName("unity-version")]
-        public string UnityVersion { get; init; }
+        [JsonPropertyName("unity-path")]
+        public string UnityPath { get; init; }
+
+        [JsonPropertyName("recompile-on-initial-test")]
+        public bool RecompileOnInitialTest { get; init; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement> ExtraData { get; init; }

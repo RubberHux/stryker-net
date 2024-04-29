@@ -33,7 +33,6 @@ namespace Stryker.Core.TestRunners.UnityTest
         private List<Guid> _testGuids;
         private List<TestProject> _testProjects;
         private readonly ILogger _logger;
-        private string _unityPath;
 
         public UnityTestRunner(StrykerOptions options, IEnumerable<SourceProjectInfo> projects)
         {
@@ -42,7 +41,6 @@ namespace Stryker.Core.TestRunners.UnityTest
             _testGuids = new List<Guid>();
             _testProjects = new List<TestProject>();
             _logger = ApplicationLogging.LoggerFactory.CreateLogger<UnityTestRunner>();
-            _unityPath = options.UnityVersion;
 
             foreach (var info in projects)
             {
@@ -131,7 +129,11 @@ namespace Stryker.Core.TestRunners.UnityTest
 
         public TestSet GetTests(IProjectAndTests project) => _testSet;
 
-        public TestRunResult InitialTest(IProjectAndTests project) => RunAllUnityTests(project, "initial_test", TimeSpan.MaxValue, additionalArgs: "-disable-assembly-updater");
+        public TestRunResult InitialTest(IProjectAndTests project)
+        {
+            var recompileArg = _options.RecompileOnInitialTestInput ? "-disable-assembly-updater" : string.Empty;
+            return RunAllUnityTests(project, "initial_test", TimeSpan.MaxValue, additionalArgs: recompileArg);
+        }
 
         public TestRunResult TestMultipleMutants(IProjectAndTests project, ITimeoutValueCalculator timeoutCalc, IReadOnlyList<Mutant> mutants, TestUpdateHandler update)
         {
@@ -178,7 +180,7 @@ namespace Stryker.Core.TestRunners.UnityTest
         {
             _logger.LogDebug("Running Unity tests...");
 
-            string unityEXE = string.Concat("\"", string.Concat(_unityPath, "\\Unity.exe\""));
+            string unityEXE = string.Concat("\"", string.Concat(_options.UnityPath, "\\Unity.exe\""));
             var processStartInfo = new ProcessStartInfo();
             processStartInfo.FileName = unityEXE;
             string platform = Enum.GetName(testPlatform);

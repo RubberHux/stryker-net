@@ -63,7 +63,8 @@ public static class FileConfigGenerator
                 ReportFileName = inputs.ReportFileNameInput.SuppliedInput ?? inputs.ReportFileNameInput.Default,
                 BreakOnInitialTestFailure = inputs.BreakOnInitialTestFailureInput.SuppliedInput ?? inputs.BreakOnInitialTestFailureInput.Default,
                 Concurrency = inputs.ConcurrencyInput.SuppliedInput ?? inputs.ConcurrencyInput.Default,
-                UnityVersion = inputs.UnityVersionInput.SuppliedInput ?? inputs.UnityVersionInput.Default
+                UnityPath = inputs.UnityPathInput.SuppliedInput ?? inputs.UnityPathInput.Default,
+                RecompileOnInitialTest = inputs.RecompileOnInitialTestInput.SuppliedInput == true
             }
         };
     }

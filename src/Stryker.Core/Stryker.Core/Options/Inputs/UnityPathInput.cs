@@ -1,6 +1,6 @@
 namespace Stryker.Core.Options.Inputs
 {
-    public class UnityVersionInput : Input<string>
+    public class UnityPathInput : Input<string>
     {
         public override string Default => string.Empty;
 

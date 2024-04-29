@@ -193,8 +193,9 @@ namespace Stryker.CLI.CommandLineConfig
             // Category: Misc
             AddCliInput(inputs.BreakOnInitialTestFailureInput, "break-on-initial-test-failure", null, optionType: CommandOptionType.NoValue, category: InputCategory.Misc);
             AddCliInput(inputs.DevModeInput, "dev-mode", null, optionType: CommandOptionType.NoValue, category: InputCategory.Misc);
-
-            AddCliInput(inputs.UnityVersionInput, "unity-version", "uv", CommandOptionType.SingleValue, InputCategory.Misc);
+            // Category: Unity
+            AddCliInput(inputs.UnityPathInput, "unity-path", "uv", CommandOptionType.SingleValue, InputCategory.Unity);
+            AddCliInput(inputs.RecompileOnInitialTestInput, "recompile-on-initial-test", null, optionType: CommandOptionType.SingleValue, InputCategory.Unity);
         }
 
         private void RegisterCliInput(CommandLineApplication app, CliInput option)

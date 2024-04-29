@@ -131,7 +131,7 @@ namespace Stryker.Core.MutationTest
             }
 
             // if running on Unity project, replace assembly in ScriptAssemblies with mutant
-            if (_options.UnityVersion != string.Empty)
+            if (_options.UnityPath != string.Empty)
             {
                 var mutantDirectory = Path.GetDirectoryName(injectionPath);
                 foreach (string path in Directory.GetFiles(mutantDirectory, "*.*", SearchOption.TopDirectoryOnly))

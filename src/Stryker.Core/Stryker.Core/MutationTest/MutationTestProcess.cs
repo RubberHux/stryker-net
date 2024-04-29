@@ -110,7 +110,7 @@ namespace Stryker.Core.MutationTest
             Input.TestProjectsInfo.RestoreOriginalAssembly(Input.SourceProjectInfo.AnalyzerResult);
 
             // if running on Unity project, restore old assemblies
-            if (_options.UnityVersion != string.Empty)
+            if (_options.UnityPath != string.Empty)
             {
                 var injectionPath = TestProjectsInfo.GetInjectionFilePath(Input.SourceProjectInfo.TestProjectsInfo.AnalyzerResults.First(), Input.SourceProjectInfo.AnalyzerResult);
                 var mutantDirectory = Path.GetDirectoryName(injectionPath);

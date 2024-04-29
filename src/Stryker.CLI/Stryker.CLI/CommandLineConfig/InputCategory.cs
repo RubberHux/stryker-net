@@ -6,5 +6,6 @@ public enum InputCategory
     Build,
     Mutation,
     Reporting,
-    Misc
+    Misc,
+    Unity
 }
