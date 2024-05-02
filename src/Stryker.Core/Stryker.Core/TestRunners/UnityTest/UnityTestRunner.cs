@@ -60,7 +60,7 @@ namespace Stryker.Core.TestRunners.UnityTest
         public bool DiscoverTests(string assembly)
         {
             // only register tests from the assembly if the corresponding test project was supplied as input
-            if (_options.TestProjects.Any(i => Path.GetFileNameWithoutExtension(assembly) == Path.GetFileNameWithoutExtension(i)))
+            if (IsSuppliedTestAssembly(assembly))
             {
                 var testDLL = Assembly.LoadFrom(assembly);
 
@@ -184,7 +184,7 @@ namespace Stryker.Core.TestRunners.UnityTest
             var processStartInfo = new ProcessStartInfo();
             processStartInfo.FileName = unityEXE;
             string platform = Enum.GetName(testPlatform);
-            processStartInfo.Arguments = string.Concat("-runTests -batchmode -projectPath . -testPlatform ", platform, " -testResults ", resultPath);
+            processStartInfo.Arguments = string.Concat("-runTests -batchmode -nographics -projectPath . -testPlatform ", platform, " -testResults ", resultPath);
 
             var testAssemblies = GetTestAssemblies(project, testPlatform);
             if (testAssemblies.Count() == 0)
@@ -218,7 +218,7 @@ namespace Stryker.Core.TestRunners.UnityTest
                 resultDoc.Load(resultPath.Substring(1, resultPath.Length - 2));
                 var testCaseNodes = resultDoc.GetElementsByTagName("test-case");
                 var root = resultDoc.SelectSingleNode("/test-run");
-                var timeSpan = new TimeSpan(0, 0, 0, 0, (int)(float.Parse(root.Attributes["duration"].Value) * 1000));
+                var timeSpan = TimeSpan.FromMilliseconds((int)(float.Parse(root.Attributes["duration"].Value.Replace('.', ',')) * 1000));
 
                 var executedTests = new List<Guid>();
                 var failingTests = new List<Guid>();
@@ -265,7 +265,7 @@ namespace Stryker.Core.TestRunners.UnityTest
             var testAssemblies = project.GetTestAssemblies();
             foreach (var testAssembly in testAssemblies)
             {
-                if (GetAssemblyTestPlatform(testAssembly).Equals(testPlatform))
+                if (GetAssemblyTestPlatform(testAssembly).Equals(testPlatform) && IsSuppliedTestAssembly(testAssembly))
                     result.Add(Path.GetFileNameWithoutExtension(testAssembly));
             }
             return result;
@@ -316,6 +316,11 @@ namespace Stryker.Core.TestRunners.UnityTest
             }
 
             return null;
+        }
+
+        private bool IsSuppliedTestAssembly(string testAssembly)
+        {
+            return _options.TestProjects.Any(i => Path.GetFileNameWithoutExtension(testAssembly) == Path.GetFileNameWithoutExtension(i));
         }
     }
 }
