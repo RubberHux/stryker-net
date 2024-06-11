@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<coverage version="1.0" date="2024-04-11_00-01-18" tag="">
+  <assembly name="UnityTestProject">
+    <class name="UnityTestProject.Scripts.Incrementor" coveredlines="4" coverablelines="4" totallines="15" coveredbranches="0" totalbranches="0" />
+  </assembly>
+</coverage>

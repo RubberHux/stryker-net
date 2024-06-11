@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "generatedon": "2024-04-10T22:01:19Z",
+    "parser": "MultiReportParser (2x OpenCoverParser)",
+    "assemblies": 1,
+    "classes": 1,
+    "files": 1,
+    "coveredlines": 4,
+    "uncoveredlines": 0,
+    "coverablelines": 4,
+    "totallines": 15,
+    "linecoverage": 100,
+    "coveredbranches": 0,
+    "totalbranches": 0,
+    "coveredmethods": 1,
+    "totalmethods": 1,
+    "methodcoverage": 100
+ },
+  "coverage": {
+    "assemblies": [
+      { "name": "UnityTestProject", "classes": 1, "coverage": 100, "coveredlines": 4, "coverablelines": 4, "totallines": 15, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "coveredmethods": 1, "totalmethods": 1, "classesinassembly": [
+        { "name": "UnityTestProject.Scripts.Incrementor", "coverage": 100, "coveredlines": 4, "coverablelines": 4, "totallines": 15, "branchcoverage": null, "coveredbranches": 0, "totalbranches": 0, "methodcoverage": 100, "coveredmethods": 1, "totalmethods": 1 } ] } ]
+  }
+}

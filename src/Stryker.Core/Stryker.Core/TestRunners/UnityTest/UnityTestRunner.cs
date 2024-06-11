@@ -222,6 +222,7 @@ namespace Stryker.Core.TestRunners.UnityTest
 
                 var executedTests = new List<Guid>();
                 var failingTests = new List<Guid>();
+                var errorTests = new List<Guid>();
 
                 foreach (XmlNode testCaseNode in testCaseNodes)
                 {
@@ -230,7 +231,10 @@ namespace Stryker.Core.TestRunners.UnityTest
                     var testGuid = GetTestGuid(name);
 
                     if (testResult != "Passed")
-                        failingTests.Add(testGuid);
+                        if (testCaseNode.Attributes["label"] == null)
+                            failingTests.Add(testGuid);
+                        else if (testCaseNode.Attributes["label"].Value == "Error")
+                            errorTests.Add(testGuid);
                     executedTests.Add(testGuid);
                 }
 
@@ -238,7 +242,7 @@ namespace Stryker.Core.TestRunners.UnityTest
                     TestGuidsList.NoTest(), null, null, timeSpan);
             }
             else if (exitCode == -1)
-                return new TestRunResult(new List<VsTestDescription>(), TestGuidsList.NoTest(), TestGuidsList.NoTest(),
+                return TestRunResult.TimedOut(new List<VsTestDescription>(), TestGuidsList.NoTest(), TestGuidsList.NoTest(),
                 new TestGuidsList(_testGuids), null, null, TimeSpan.Zero);
             else
                 result = new TestRunResult(false);

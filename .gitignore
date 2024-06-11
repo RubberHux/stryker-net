@@ -289,3 +289,13 @@ StrykerLogs/
 *.DotSettings
 /src/Stryker.CLI/TestStatisticsAnalyzer/test-stats-report.json
 .DS_Store
+
+# Example Unity project
+ExampleProjects/UnityTestProject/[Ll]ibrary/
+ExampleProjects/UnityTestProject/[Tt]emp/
+ExampleProjects/UnityTestProject/[Oo]bj/
+ExampleProjects/UnityTestProject/[Bb]uild/
+ExampleProjects/UnityTestProject/[Bb]uilds/
+ExampleProjects/UnityTestProject/[Ll]ogs/
+ExampleProjects/UnityTestProject/[Uu]ser[Ss]ettings/
+ExampleProjects/UnityTestProject/.vs/

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoverageReport scope="Summary">
+  <Summary>
+    <Generatedon>2024-04-11 - 00:01:19</Generatedon>
+    <Parser>MultiReportParser (2x OpenCoverParser)</Parser>
+    <Assemblies>1</Assemblies>
+    <Classes>1</Classes>
+    <Files>1</Files>
+    <Coveredlines>4</Coveredlines>
+    <Uncoveredlines>0</Uncoveredlines>
+    <Coverablelines>4</Coverablelines>
+    <Totallines>15</Totallines>
+    <Linecoverage>100</Linecoverage>
+    <Coveredbranches>0</Coveredbranches>
+    <Totalbranches>0</Totalbranches>
+    <Coveredmethods>1</Coveredmethods>
+    <Totalmethods>1</Totalmethods>
+    <Methodcoverage>100</Methodcoverage>
+  </Summary>
+  <Coverage>
+    <Assembly name="UnityTestProject" classes="1" coverage="100" coveredlines="4" coverablelines="4" totallines="15" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100">
+      <Class name="UnityTestProject.Scripts.Incrementor" coverage="100" coveredlines="4" coverablelines="4" totallines="15" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
+    </Assembly>
+  </Coverage>
+</CoverageReport>

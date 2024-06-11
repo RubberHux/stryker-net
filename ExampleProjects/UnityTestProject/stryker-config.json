@@ -1,0 +1,51 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "",
+      "version": ""
+    },
+    "concurrency": 1,
+    "mutation-level": "Advanced",
+    "language-version": "latest",
+    "additional-timeout": 10000,
+    "mutate": [
+      "**/*"
+    ],
+    "solution": "UnityTestProject.sln",
+    "target-framework": null,
+    "project": "UnityTestProject.csproj",
+    "coverage-analysis": "off",
+    "disable-bail": false,
+    "disable-mix-mutants": false,
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    },
+    "verbosity": "info",
+    "reporters": [
+      "Progress",
+      "Html"
+    ],
+    "since": {
+      "enabled": false,
+      "ignore-changes-in": [],
+      "target": "master"
+    },
+    "baseline": {
+      "enabled": false,
+      "provider": "disk",
+      "azure-fileshare-url": "",
+      "fallback-version": "master"
+    },
+    "dashboard-url": "https://dashboard.stryker-mutator.io",
+    "test-projects": ["PlayModeTests.csproj","EditModeTests.csproj"],
+    "test-case-filter": "",
+    "ignore-mutations": [],
+    "ignore-methods": [],
+    "report-file-name": "mutation-report",
+    "break-on-initial-test-failure": false,
+    "unity-path": "C:\\Program Files\\Unity\\Hub\\Editor\\2023.2.16f1\\Editor",
+    "recompile-on-initial-test": true
+  }
+}

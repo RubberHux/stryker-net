@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0,0735975">
+  <test-suite type="TestSuite" id="1000" name="UnityTestProject" fullname="UnityTestProject" runstate="Runnable" testcasecount="6" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.073598" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1010" name="EditModeTests.dll" fullname="C:/Users/Rubbe/Documents/Courses/DA231X/UnityTestProject/Library/ScriptAssemblies/EditModeTests.dll" runstate="Runnable" testcasecount="6" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.067083" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="47252" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="1011" name="UnityTestProject" fullname="UnityTestProject" runstate="Runnable" testcasecount="6" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.066405" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties>
+          <property name="platform" value="EditMode" />
+        </properties>
+        <test-suite type="TestSuite" id="1012" name="EditModeTests" fullname="UnityTestProject.EditModeTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.063552" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties>
+            <property name="platform" value="EditMode" />
+          </properties>
+          <test-suite type="TestFixture" id="1001" name="ExampleTest" fullname="UnityTestProject.EditModeTests.ExampleTest" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" testcasecount="5" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.053575" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties>
+              <property name="platform" value="EditMode" />
+            </properties>
+            <test-case id="1002" name="IncrementorTest1" fullname="UnityTestProject.EditModeTests.ExampleTest.IncrementorTest1" methodname="IncrementorTest1" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" seed="587088013" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.019612" asserts="0">
+              <properties>
+                <property name="platform" value="EditMode" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1003" name="IncrementorTestUnity" fullname="UnityTestProject.EditModeTests.ExampleTest.IncrementorTestUnity" methodname="IncrementorTestUnity" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" seed="183700584" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.008984" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="platform" value="EditMode" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1007" name="ParameterizedTest" fullname="UnityTestProject.EditModeTests.ExampleTest.ParameterizedTest" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" testcasecount="3" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.004617" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="platform" value="EditMode" />
+              </properties>
+              <test-case id="1004" name="ParameterizedTest(5)" fullname="UnityTestProject.EditModeTests.ExampleTest.ParameterizedTest(5)" methodname="ParameterizedTest" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" seed="1404382023" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.000389" asserts="0">
+                <properties>
+                  <property name="platform" value="EditMode" />
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1005" name="ParameterizedTest(6)" fullname="UnityTestProject.EditModeTests.ExampleTest.ParameterizedTest(6)" methodname="ParameterizedTest" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" seed="420799336" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.000143" asserts="0">
+                <properties>
+                  <property name="platform" value="EditMode" />
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1006" name="ParameterizedTest(-4)" fullname="UnityTestProject.EditModeTests.ExampleTest.ParameterizedTest(-4)" methodname="ParameterizedTest" classname="UnityTestProject.EditModeTests.ExampleTest" runstate="Runnable" seed="60582446" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.000138" asserts="0">
+                <properties>
+                  <property name="platform" value="EditMode" />
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+          </test-suite>
+          <test-suite type="TestFixture" id="1008" name="ExtraTest" fullname="UnityTestProject.EditModeTests.ExtraTest" classname="UnityTestProject.EditModeTests.ExtraTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.004913" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties>
+              <property name="platform" value="EditMode" />
+            </properties>
+            <test-case id="1009" name="IncrementorTest2" fullname="UnityTestProject.EditModeTests.ExtraTest.IncrementorTest2" methodname="IncrementorTest2" classname="UnityTestProject.EditModeTests.ExtraTest" runstate="Runnable" seed="1329925932" result="Passed" start-time="2024-05-02 07:21:13Z" end-time="2024-05-02 07:21:13Z" duration="0.003779" asserts="0">
+              <properties>
+                <property name="platform" value="EditMode" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:\Users\Rubbe\Documents\Courses\DA231X\UnityTestProject\TestResults-638502384732741027.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
